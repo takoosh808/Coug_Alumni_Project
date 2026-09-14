@@ -111,17 +111,28 @@ not use SQLite for important live data.
 
 1. Push this repository to GitHub. The app entry point is
   `alumni_database_app/app.py`.
-2. Create a free Supabase project and copy its PostgreSQL connection string.
+2. Create a free Supabase project. In Supabase, click **Connect**, choose
+  **Database**, then choose **Session pooler**. Do not use the direct host
+  `db.<project-ref>.supabase.co`, because it may be IPv6-only and cannot be
+  reached by Streamlit Community Cloud.
 3. In Streamlit Community Cloud, create an app from the repository, set the
-  main file to `alumni_database_app/app.py`, and add this secret:
+  main file to `alumni_database_app/app.py`, and add these secrets. Use the
+  exact values shown by Supabase under **Connect → Database → Session pooler**:
 
   ```toml
-  DATABASE_URL = "postgresql+psycopg2://USER:PASSWORD@HOST:5432/postgres"
+  SUPABASE_DB_HOST = "aws-0-REGION.pooler.supabase.com"
+  SUPABASE_DB_PORT = "5432"
+  SUPABASE_DB_NAME = "postgres"
+  SUPABASE_DB_USER = "postgres.PROJECT_REF"
+  SUPABASE_DB_PASSWORD = "YOUR_DATABASE_PASSWORD"
   ```
 
-  Use the connection string supplied by your database provider. Keep the
-  password in Streamlit Secrets, never in GitHub.
+  The user must be the pooler user, usually `postgres.PROJECT_REF`, not just
+  `postgres`. The password is the Supabase database password, not the
+  Supabase account password. The app encodes special password characters
+  automatically. Keep these values in Streamlit Secrets, never in GitHub.
 4. Deploy. The app creates its table automatically on first startup.
 
-Without `DATABASE_URL`, the app still uses local SQLite, so local development
-and the Windows launcher continue to work as before.
+The app also accepts a `DATABASE_URL` secret for compatibility, but the split
+secrets above are recommended because they avoid URI escaping mistakes.
+Without either configuration, local development uses SQLite as before.

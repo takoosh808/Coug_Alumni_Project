@@ -10,12 +10,43 @@ because this uses SQLAlchemy Core.
 import os
 
 import pandas as pd
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import URL, create_engine, inspect, text
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(APP_DIR, "alumni_database.db")
 
+def get_secret(name, default=None):
+    value = os.environ.get(name)
+    if value:
+        return value
+
+    try:
+        import streamlit as st
+
+        return st.secrets.get(name, default)
+    except Exception:
+        return default
+
+
 def get_database_url():
+    split_secret_names = (
+        "SUPABASE_DB_HOST",
+        "SUPABASE_DB_PORT",
+        "SUPABASE_DB_NAME",
+        "SUPABASE_DB_USER",
+        "SUPABASE_DB_PASSWORD",
+    )
+    split_secrets = {name: get_secret(name) for name in split_secret_names}
+    if all(split_secrets.values()):
+        return URL.create(
+            "postgresql+psycopg2",
+            username=split_secrets["SUPABASE_DB_USER"],
+            password=split_secrets["SUPABASE_DB_PASSWORD"],
+            host=split_secrets["SUPABASE_DB_HOST"],
+            port=int(split_secrets["SUPABASE_DB_PORT"]),
+            database=split_secrets["SUPABASE_DB_NAME"],
+        )
+
     database_url = os.environ.get("DATABASE_URL")
     if database_url:
         return database_url
