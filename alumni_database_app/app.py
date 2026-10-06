@@ -23,8 +23,39 @@ st.set_page_config(page_title="Alumni Database Querier", page_icon="🎓", layou
 
 db.init_db()
 
+if "authenticated_user" not in st.session_state:
+    if not db.bootstrap_admin():
+        user_count = int(db.run_query(f"SELECT COUNT(*) AS c FROM {db.USER_TABLE_NAME}").iloc[0]["c"])
+        if user_count == 0:
+            st.error(
+                "No login account exists yet. Configure BOOTSTRAP_ADMIN_USERNAME, "
+                "BOOTSTRAP_ADMIN_EMAIL, and BOOTSTRAP_ADMIN_PASSWORD in your deployment secrets. "
+                "Use a password with at least 12 characters."
+            )
+            st.stop()
+
+    st.title("🎓 Alumni Database | Sign In")
+    with st.form("login_form"):
+        identity = st.text_input("Username or email")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Sign in", type="primary", use_container_width=True)
+
+    if submitted:
+        account = db.authenticate_user(identity, password)
+        if account:
+            st.session_state["authenticated_user"] = account
+            st.rerun()
+        st.error("Sign-in failed. Check your username/email and password.")
+    st.stop()
+
 st.title("🎓 Alumni Database Querier")
 st.caption("Search, filter, and analyze alumni engagement survey responses.")
+
+with st.sidebar:
+    st.caption(f"Signed in as **{st.session_state['authenticated_user']['username']}**")
+    if st.button("Sign out", use_container_width=True):
+        del st.session_state["authenticated_user"]
+        st.rerun()
 
 page = st.sidebar.radio(
     "Navigate",

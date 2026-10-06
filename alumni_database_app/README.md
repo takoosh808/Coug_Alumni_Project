@@ -19,6 +19,29 @@ the data layer (`db.py`) uses SQLAlchemy, so moving to PostgreSQL later
 is a matter of changing one connection string (`DB_URL`) — the rest of
 the app doesn't need to change.
 
+## Login schema foundation
+
+The database initializes a separate `app_users` table for authentication. It
+stores unique usernames and email addresses, a salted scrypt `password_hash`
+(never a plaintext password), a role, an active flag, and account timestamps.
+The app requires sign-in and accepts either username or email.
+
+To create the first administrator, add these secrets to Streamlit Cloud under
+**App settings → Secrets** before starting the app:
+
+```toml
+BOOTSTRAP_ADMIN_USERNAME = "admin"
+BOOTSTRAP_ADMIN_EMAIL = "admin@example.com"
+BOOTSTRAP_ADMIN_PASSWORD = "use-a-unique-password-at-least-12-characters"
+```
+
+The administrator is created only when `app_users` is empty. Once the account
+has been created, remove these bootstrap secrets and reboot the app. For a
+Rocky Linux deployment, provide the same three values as environment variables
+to the app's systemd service instead of committing them to a file. This initial
+version has no public registration or user-management page; additional users
+must be provisioned through trusted administrative tooling.
+
 ## What's included
 
 | File | Purpose |
