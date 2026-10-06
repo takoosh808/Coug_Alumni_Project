@@ -24,7 +24,12 @@ the app doesn't need to change.
 The database initializes a separate `app_users` table for authentication. It
 stores unique usernames and email addresses, a salted scrypt `password_hash`
 (never a plaintext password), a role, an active flag, and account timestamps.
-The app requires sign-in and accepts either username or email.
+The app requires sign-in and accepts either username or email. Standard users
+can search, view records, and use analytics. Admins also get CSV ingestion,
+settings, and a User Management page where they can create accounts, change
+roles or active status, reset passwords, and delete accounts. The app prevents
+admins from removing or disabling the last active admin, and prevents an admin
+from locking themselves out through the management page.
 
 To create the first administrator, add these secrets to Streamlit Cloud under
 **App settings → Secrets** before starting the app:
@@ -38,9 +43,10 @@ BOOTSTRAP_ADMIN_PASSWORD = "use-a-unique-password-at-least-12-characters"
 The administrator is created only when `app_users` is empty. Once the account
 has been created, remove these bootstrap secrets and reboot the app. For a
 Rocky Linux deployment, provide the same three values as environment variables
-to the app's systemd service instead of committing them to a file. This initial
-version has no public registration or user-management page; additional users
-must be provisioned through trusted administrative tooling.
+to the app's systemd service instead of committing them to a file. There is no
+public registration; additional users must be created by an admin from the User
+Management page. Admins must securely communicate the initial password to each
+new user; users can sign in with their username or email.
 
 ## What's included
 

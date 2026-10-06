@@ -48,6 +48,12 @@ if "authenticated_user" not in st.session_state:
         st.error("Sign-in failed. Check your username/email and password.")
     st.stop()
 
+current_user = db.get_active_user(st.session_state["authenticated_user"]["id"])
+if current_user is None:
+    del st.session_state["authenticated_user"]
+    st.rerun()
+st.session_state["authenticated_user"] = current_user
+
 st.title("🎓 Alumni Database Querier")
 st.caption("Search, filter, and analyze alumni engagement survey responses.")
 
@@ -57,9 +63,13 @@ with st.sidebar:
         del st.session_state["authenticated_user"]
         st.rerun()
 
+pages = ["🔍 Search & Filter", "📊 Analytics", "📋 View All Data"]
+if current_user["role"] == "admin":
+    pages.extend(["📤 Upload / Ingest CSV", "👥 User Management", "⚙️ Settings"])
+
 page = st.sidebar.radio(
     "Navigate",
-    ["🔍 Search & Filter", "📊 Analytics", "📋 View All Data", "📤 Upload / Ingest CSV", "⚙️ Settings"],
+    pages,
 )
 
 total_count = db.run_query(f"SELECT COUNT(*) as c FROM {db.TABLE_NAME}").iloc[0]["c"]
@@ -244,6 +254,91 @@ elif page == "📤 Upload / Ingest CSV":
             st.rerun()
         else:
             st.error("sample_alumni_data.csv not found next to app.py.")
+
+# ---------------- User Management ----------------
+elif page == "👥 User Management":
+    st.header("User Management")
+    accounts_tab, create_tab = st.tabs(["Current users", "Create user"])
+
+    with accounts_tab:
+        users = db.get_users()
+        st.dataframe(users, hide_index=True, use_container_width=True)
+        if not users.empty:
+            user_labels = {
+                int(row.id): f"{row.username} ({row.email})"
+                for row in users.itertuples(index=False)
+            }
+            selected_user_id = st.selectbox(
+                "Select a user to edit or delete",
+                options=list(user_labels),
+                format_func=lambda user_id: user_labels[user_id],
+            )
+            selected_user = users.loc[users["id"] == selected_user_id].iloc[0]
+
+            with st.form(f"edit_user_{selected_user_id}"):
+                edit_username = st.text_input("Username", value=selected_user["username"])
+                edit_email = st.text_input("Email", value=selected_user["email"])
+                edit_role = st.selectbox(
+                    "Role", ["user", "admin"], index=["user", "admin"].index(selected_user["role"])
+                )
+                edit_active = st.checkbox("Account active", value=bool(selected_user["is_active"]))
+                edit_password = st.text_input(
+                    "New password (leave blank to keep current)", type="password"
+                )
+                save_user = st.form_submit_button("Save changes", type="primary")
+
+            if save_user:
+                try:
+                    db.update_user(
+                        int(selected_user_id),
+                        edit_username,
+                        edit_email,
+                        edit_role,
+                        edit_active,
+                        edit_password or None,
+                        actor_user_id=current_user["id"],
+                    )
+                    st.success("User updated.")
+                    st.rerun()
+                except ValueError as error:
+                    st.error(str(error))
+                except Exception as error:
+                    if "unique" in str(error).lower() or "duplicate" in str(error).lower():
+                        st.error("That username or email address is already in use.")
+                    else:
+                        st.error("Could not update this user.")
+
+            confirm_delete = st.checkbox(
+                "Confirm deletion of this account", key=f"confirm_delete_{selected_user_id}"
+            )
+            if st.button("Delete selected user", disabled=not confirm_delete):
+                try:
+                    db.delete_user(int(selected_user_id), actor_user_id=current_user["id"])
+                    st.success("User deleted.")
+                    st.rerun()
+                except ValueError as error:
+                    st.error(str(error))
+
+    with create_tab:
+        with st.form("create_user_form", clear_on_submit=True):
+            new_username = st.text_input("Username")
+            new_email = st.text_input("Email")
+            new_password = st.text_input("Temporary password (at least 12 characters)", type="password")
+            new_role = st.selectbox("Role", ["user", "admin"])
+            create_submitted = st.form_submit_button("Create user", type="primary")
+
+        if create_submitted:
+            try:
+                db.create_user(new_username, new_email, new_password, new_role)
+                st.success(f"Account for {new_username.strip()} created.")
+                st.rerun()
+            except ValueError as error:
+                st.error(str(error))
+            except Exception as error:
+                if "unique" in str(error).lower() or "duplicate" in str(error).lower():
+                    st.error("That username or email address is already in use.")
+                else:
+                    st.error("Could not create this user.")
 
 # ---------------- Settings ----------------
 elif page == "⚙️ Settings":

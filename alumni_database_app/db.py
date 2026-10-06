@@ -209,6 +209,123 @@ def authenticate_user(identity, password):
         return {"id": user["id"], "username": user["username"], "role": user["role"]}
 
 
+def get_active_user(user_id):
+    with ENGINE.begin() as conn:
+        user = conn.execute(
+            text(
+                f"SELECT id, username, role FROM {USER_TABLE_NAME} "
+                "WHERE id = :id AND is_active = TRUE"
+            ),
+            {"id": user_id},
+        ).mappings().first()
+        return dict(user) if user else None
+
+
+def get_users():
+    return run_query(
+        f"SELECT id, username, email, role, is_active, created_at, last_login_at "
+        f"FROM {USER_TABLE_NAME} ORDER BY username"
+    )
+
+
+def validate_user_fields(username, email, role):
+    username = username.strip().lower()
+    email = email.strip().lower()
+    if not username or len(username) > 80:
+        raise ValueError("Username must be between 1 and 80 characters.")
+    if not email or len(email) > 255 or "@" not in email:
+        raise ValueError("Enter a valid email address.")
+    if role not in ("admin", "user"):
+        raise ValueError("Role must be admin or user.")
+    return username, email
+
+
+def create_user(username, email, password, role):
+    username, email = validate_user_fields(username, email, role)
+    if len(password) < 12:
+        raise ValueError("Password must be at least 12 characters.")
+
+    with ENGINE.begin() as conn:
+        conn.execute(
+            text(
+                f"INSERT INTO {USER_TABLE_NAME} "
+                "(username, email, password_hash, role) "
+                "VALUES (:username, :email, :password_hash, :role)"
+            ),
+            {
+                "username": username,
+                "email": email,
+                "password_hash": hash_password(password),
+                "role": role,
+            },
+        )
+
+
+def update_user(user_id, username, email, role, is_active, new_password=None, actor_user_id=None):
+    username, email = validate_user_fields(username, email, role)
+    if new_password and len(new_password) < 12:
+        raise ValueError("New password must be at least 12 characters.")
+    if actor_user_id == user_id and (role != "admin" or not is_active):
+        raise ValueError("You cannot demote or deactivate your own admin account.")
+
+    with ENGINE.begin() as conn:
+        current = conn.execute(
+            text(f"SELECT role, is_active FROM {USER_TABLE_NAME} WHERE id = :id"),
+            {"id": user_id},
+        ).mappings().first()
+        if current is None:
+            raise ValueError("That account no longer exists.")
+
+        if current["role"] == "admin" and current["is_active"] and (role != "admin" or not is_active):
+            active_admins = conn.execute(
+                text(f"SELECT COUNT(*) FROM {USER_TABLE_NAME} WHERE role = 'admin' AND is_active = TRUE")
+            ).scalar_one()
+            if active_admins <= 1:
+                raise ValueError("At least one active admin account must remain.")
+
+        values = {
+            "id": user_id,
+            "username": username,
+            "email": email,
+            "role": role,
+            "is_active": is_active,
+        }
+        password_sql = ""
+        if new_password:
+            password_sql = ", password_hash = :password_hash"
+            values["password_hash"] = hash_password(new_password)
+        conn.execute(
+            text(
+                f"UPDATE {USER_TABLE_NAME} SET username = :username, email = :email, "
+                f"role = :role, is_active = :is_active, updated_at = CURRENT_TIMESTAMP"
+                f"{password_sql} WHERE id = :id"
+            ),
+            values,
+        )
+
+
+def delete_user(user_id, actor_user_id=None):
+    if actor_user_id == user_id:
+        raise ValueError("You cannot delete the account you are currently using.")
+
+    with ENGINE.begin() as conn:
+        user = conn.execute(
+            text(f"SELECT role, is_active FROM {USER_TABLE_NAME} WHERE id = :id"),
+            {"id": user_id},
+        ).mappings().first()
+        if user is None:
+            raise ValueError("That account no longer exists.")
+
+        if user["role"] == "admin" and user["is_active"]:
+            active_admins = conn.execute(
+                text(f"SELECT COUNT(*) FROM {USER_TABLE_NAME} WHERE role = 'admin' AND is_active = TRUE")
+            ).scalar_one()
+            if active_admins <= 1:
+                raise ValueError("At least one active admin account must remain.")
+
+        conn.execute(text(f"DELETE FROM {USER_TABLE_NAME} WHERE id = :id"), {"id": user_id})
+
+
 def get_table_columns():
     return [column["name"] for column in inspect(ENGINE).get_columns(TABLE_NAME)]
 
