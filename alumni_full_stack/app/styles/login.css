@@ -1,0 +1,79 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.login-story {
+  background: var(--crimson);
+  color: white;
+  padding: 54px 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 80px;
+}
+.login-story .brand-mark {
+  background: #fff;
+  color: var(--crimson);
+}
+.login-story h1 {
+  font-size: clamp(40px, 4.6vw, 70px);
+  line-height: 1.12;
+  letter-spacing: -2px;
+  margin: 18px 0 28px;
+}
+.login-story p {
+  color: #f2dce0;
+  max-width: 390px;
+  font-size: 16px;
+}
+.login-story .story-label {
+  font-size: 14px;
+}
+.story-rule {
+  width: 55px;
+  border-top: 2px solid #d1949e;
+  margin: 32px 0;
+}
+.login-story .story-foot {
+  font-size: 14px;
+}
+.login-story > span {
+  font-size: 12px;
+  color: #efcbd2;
+}
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 60px 30px;
+  background: white;
+}
+.login-form {
+  max-width: 370px;
+  width: 100%;
+  margin: auto;
+}
+.mini-mark {
+  width: 38px;
+  height: 38px;
+  font-size: 25px;
+  margin-bottom: 30px;
+}
+.login-form h2 {
+  font-size: 28px;
+}
+.login-form > p {
+  margin: 10px 0 30px;
+}
+.login-form form {
+  margin-top: 32px;
+}
+.login-form .login-help {
+  font-size: 12px;
+  margin-top: 25px;
+}
+.login-bottom {
+  font-size: 12px;
+}

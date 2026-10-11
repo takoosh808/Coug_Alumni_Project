@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-coug}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-coug_alumni}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  init:
+    build:
+      context: .
+      target: dependencies
+    working_dir: /app
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./lib:/app/lib:ro
+      - ./db:/app/db:ro
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-coug}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-coug_alumni}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:?Set SUPER_ADMIN_EMAIL in .env}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:?Set SUPER_ADMIN_PASSWORD in .env}
+    command: ["npx", "tsx", "scripts/init-db.ts"]
+    depends_on:
+      db:
+        condition: service_healthy
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-coug}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-coug_alumni}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      init:
+        condition: service_completed_successfully
+volumes:
+  postgres_data:

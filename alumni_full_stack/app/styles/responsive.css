@@ -1,0 +1,260 @@
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 210px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .account {
+    margin: 0 -16px;
+  }
+  .main-content {
+    padding: 28px;
+  }
+  .topbar {
+    padding: 0 28px;
+  }
+  .quick-queries {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .directory-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .stats > div {
+    padding: 0 18px;
+  }
+  .results-heading {
+    flex-wrap: wrap;
+  }
+  .page-heading h1 {
+    font-size: 30px;
+  }
+}
+@media (max-width: 850px) {
+  .app-shell {
+    display: block;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    padding: 15px 20px;
+    flex-direction: row;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar .wordmark {
+    font-size: 20px;
+  }
+  .brand-second {
+    font-size: 13px;
+  }
+  .sidebar .brand-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 25px;
+  }
+  .sidebar-caption,
+  .sidebar-note {
+    display: none;
+  }
+  .sidebar nav {
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .sidebar nav a {
+    font-size: 11px;
+    padding: 10px;
+  }
+  .sidebar nav svg {
+    width: 17px;
+  }
+  .account {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .account > div:nth-child(2) {
+    display: none;
+  }
+  .topbar {
+    height: 55px;
+  }
+  .stats span {
+    font-size: 11px;
+  }
+  .stats strong {
+    font-size: 28px;
+  }
+  .directory-layout {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .login-story {
+    padding: 40px 9%;
+  }
+  .login-story h1 {
+    font-size: 43px;
+  }
+}
+@media (max-width: 600px) {
+  .main-content {
+    padding: 24px 16px;
+  }
+  .topbar {
+    padding: 0 16px;
+  }
+  .workspace-label {
+    display: none;
+  }
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .page-heading h1 {
+    font-size: 30px;
+  }
+  .page-heading p {
+    font-size: 12px;
+  }
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+    margin-bottom: 25px;
+  }
+  .stats > div {
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stats > div:nth-child(2) {
+    border-right: 0;
+  }
+  .stats > div:nth-child(3),
+  .stats > div:nth-child(4) {
+    border-bottom: 0;
+  }
+  .quick-section > div:first-child {
+    display: block;
+  }
+  .quick-section p {
+    margin-top: 8px;
+  }
+  .quick-queries {
+    gap: 9px;
+  }
+  .quick-queries button {
+    padding: 13px 10px;
+    align-items: flex-start;
+  }
+  .quick-queries strong {
+    font-size: 11px;
+  }
+  .quick-queries small {
+    font-size: 11px;
+  }
+  .quick-queries svg {
+    width: 13px;
+  }
+  .directory-layout {
+    display: block;
+  }
+  .filter-panel {
+    margin-bottom: 18px;
+  }
+  .filter-panel form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 15px;
+  }
+  .filter-panel form > label:first-child,
+  .filter-panel form > fieldset,
+  .filter-panel form > button,
+  .filter-panel form > label:last-of-type {
+    grid-column: 1/-1;
+  }
+  .opportunity-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .results-heading {
+    padding: 18px;
+  }
+  .pagination {
+    padding: 16px;
+  }
+  .sidebar {
+    gap: 15px;
+    padding: 13px 16px;
+  }
+  .sidebar nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .sidebar nav a {
+    flex: 1;
+    justify-content: center;
+    font-size: 11px;
+    padding: 9px 4px;
+  }
+  .sidebar .wordmark {
+    flex: 1;
+  }
+  .account {
+    margin-left: auto;
+  }
+  .workspace-footer {
+    gap: 20px;
+    line-height: 1.5;
+  }
+  .login-page {
+    display: block;
+  }
+  .login-story {
+    padding: 25px;
+    gap: 40px;
+  }
+  .login-story h1 {
+    font-size: 39px;
+  }
+  .login-story > span,
+  .story-rule,
+  .story-foot {
+    display: none;
+  }
+  .login-story p {
+    font-size: 14px;
+  }
+  .login-story .story-label {
+    font-size: 12px;
+  }
+  .login-story h1 {
+    margin-bottom: 15px;
+  }
+  .login-panel {
+    padding: 38px 25px;
+    min-height: 500px;
+  }
+  .mini-mark {
+    display: none;
+  }
+  .login-bottom {
+    margin-top: 25px;
+  }
+  .admin-panel {
+    padding: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

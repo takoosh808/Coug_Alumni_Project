@@ -1,0 +1,11 @@
+first_name,last_name,email,current_company,graduation_year,major,linked_in,q_internship,q_guest_lecture,q_capstone_mentor,q_company_visits
+Alex,Chen,alex.chen@example.com,Microsoft,2018,Computer Science,,yes,yes,no,yes
+Jordan,Rivera,jordan.rivera@example.com,Microsoft,2020,Software Engineering,,yes,no,yes,no
+Taylor,Brooks,taylor.brooks@example.com,Boeing,2015,Mechanical Engineering,,no,yes,yes,yes
+Morgan,Patel,morgan.patel@example.com,Amazon,2021,Computer Science,,yes,no,yes,no
+Casey,Wilson,casey.wilson@example.com,Schweitzer Engineering Laboratories,2012,Electrical Engineering,,yes,yes,yes,yes
+Riley,Nguyen,riley.nguyen@example.com,Adobe,2019,Design,,no,yes,no,no
+Jamie,Thompson,jamie.thompson@example.com,Microsoft,2009,Computer Science,,no,yes,yes,yes
+Sam,Martinez,sam.martinez@example.com,Expedia,2022,Data Analytics,,yes,no,no,yes
+Quinn,Anderson,quinn.anderson@example.com,Washington State University,2010,Communication,,no,yes,yes,no
+Avery,Kim,avery.kim@example.com,Costco,2016,Business Administration,,yes,yes,no,yes
