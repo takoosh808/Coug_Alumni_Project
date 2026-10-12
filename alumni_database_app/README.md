@@ -55,6 +55,11 @@ new user; users can sign in with their username or email.
 | `Alumni_Database_App.ipynb` | Jupyter notebook — installs dependencies and launches the app for you |
 | `app.py` | The Streamlit web app (UI) |
 | `db.py` | Database logic (SQLite via SQLAlchemy) |
+| `ARCHITECTURE.md` | Layered architecture overview and diagram |
+| `DATABASE_SCHEMA.md` | SQLite/PostgreSQL table definitions and relationships |
+| `USE_CASES.md` | Role-based application use cases and requirements |
+| `FUNCTIONAL_REQUIREMENTS.md` | Functional requirements with source and priority |
+| `USER_STORIES_TRACEABILITY.md` | User stories and functional-requirement traceability matrix |
 | `requirements.txt` | Python package dependencies |
 | `sample_alumni_data.csv` | 30 rows of dummy data to try the app with |
 | `run.sh` / `run.bat` | Double-click launchers for Mac/Linux and Windows |
