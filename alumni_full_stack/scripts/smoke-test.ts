@@ -95,6 +95,18 @@ async function main() {
     assert.equal((await request("/api/alumni",adminCookie,"POST",JSON.stringify(profile))).response.status,200);
     const saved = (await request(`/api/alumni?${query}&industry=Quantum`,adminCookie)).data;
     assert.equal(saved.total,1); assert.equal(saved.alumni[0].education_history.length,2);
+    assert.ok(saved.filterOptions.industry.includes("Quantum sensors"));
+    assert.ok(saved.filterOptions.degree.includes("BS"));
+    assert.ok(saved.filterOptions.degree.includes("MS"));
+    assert.ok(saved.filterOptions.major.includes("CS"));
+    assert.ok(saved.filterOptions.opportunities.includes("Robotics lab tours"));
+    assert.ok(saved.filterOptions.expertise.includes("Robotics"));
+    assert.ok(saved.filterOptions.expertise.includes("AI"));
+    assert.equal((await request(`/api/alumni?${query}&opportunity_value=Robotics%20lab%20tours`,adminCookie)).data.total,1);
+    assert.equal((await request(`/api/alumni?${query}&opportunity_value=Robotics`,adminCookie)).data.total,0);
+    const emptySearch = (await request(`/api/alumni?search=${suffix}-no-results`,adminCookie)).data;
+    assert.equal(emptySearch.total,0);
+    assert.ok(emptySearch.filterOptions.industry.includes("Quantum sensors"));
     assert.equal((await request(`/api/alumni?${query}&degree=BS&major=Robotics`,adminCookie)).data.total,0);
     assert.equal((await request(`/api/alumni?${query}&degree=MS&year_from=2023`,adminCookie)).data.total,1);
     assert.equal((await request(`/api/alumni?${query}&opportunity=q_resume_help`,adminCookie)).data.total,1);
@@ -105,6 +117,9 @@ async function main() {
     for (const visibility of ["Authorized WSU EECS faculty and staff","Please contact me before displaying my profile","Custom permission",""]) {
       assert.equal((await request("/api/alumni",adminCookie,"POST",JSON.stringify({...profile,profile_visibility:visibility}))).response.status,200);
       assert.equal((await request(`/api/alumni?${query}`,memberCookie)).data.total,22);
+      const memberFacets = (await request(`/api/alumni?${query}`,memberCookie)).data.filterOptions;
+      assert.ok(!memberFacets.industry?.includes("Quantum sensors"));
+      assert.ok(!memberFacets.additional_comments?.length);
       assert.equal((await request(`/api/alumni?${query}`,adminCookie)).data.total,23);
     }
     assert.equal((await request("/api/alumni",adminCookie,"POST",JSON.stringify({...profile,storage_consent:"No"}))).response.status,200);

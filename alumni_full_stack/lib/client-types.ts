@@ -10,6 +10,7 @@ export type Directory = {
     internships: number;
   };
   majors: string[];
+  filterOptions: import("./directory-facets").FilterOptions;
 };
 export type ImportRecord = {
   id: number;

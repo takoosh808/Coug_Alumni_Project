@@ -37,7 +37,8 @@ export function checkOrigin(request: Request) {
   // Standalone servers use an internal hostname in request.url. The Host
   // header preserves the browser's destination across Docker's port mapping.
   const host = request.headers.get("host");
-  const expected = process.env.APP_ORIGIN ?? `${new URL(request.url).protocol}//${host}`;
+  const expected =
+    process.env.APP_ORIGIN ?? `${new URL(request.url).protocol}//${host}`;
   if (!origin || !host || origin !== expected)
     throw new HttpError(
       403,
@@ -60,7 +61,11 @@ export async function createSession(userId: number) {
   });
 }
 export function apiError(error: unknown) {
-  if (error instanceof SyntaxError) return Response.json({ error: "Invalid request data. Refresh the page and try again." }, { status: 400 });
+  if (error instanceof SyntaxError)
+    return Response.json(
+      { error: "Invalid request data. Refresh the page and try again." },
+      { status: 400 },
+    );
   if (error instanceof HttpError)
     return Response.json({ error: error.message }, { status: error.status });
   console.error(error);

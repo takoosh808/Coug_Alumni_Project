@@ -1,5 +1,13 @@
 # Fictional alumni examples
 
+## Directory filter options
+
+Directory choices are queried from current database answers on every directory request, independently of search filters and pagination. New imported, edited, or directly updated values appear on the next directory load; refresh an already open directory after an external database update. No lookup tables or migration are needed: the existing profile tables remain the source of truth.
+
+Degree and major choices include every education record. Opportunities, expertise, and support interests split semicolon-separated answers into individual choices; commas remain part of answers. Blank choices are excluded, and choices are deduplicated and sorted. Member choices use only profiles visible to that member and exclude staff-only comments.
+
+Opportunity checkboxes use repeated `opportunity_value` query parameters for exact, case-insensitive answers and support all/any matching. Existing `opportunity=q_internship` and other legacy category links remain supported. Other text filters retain partial-text matching. Fixed suggestions in the profile editor remain optional data-entry hints and do not control directory filter options.
+
 The old 10-person list has been updated for the expanded schema. Every one of the 24 CSV template columns has a value, including all education, professional, support, and privacy responses. The examples do not establish which real form fields must be required. No validation rules or schema constraints were changed.
 
 Names, employment details, comments, and permissions are fictional. Emails use the reserved `example.com` domain. LinkedIn URLs are clearly marked fictional placeholders and are not verified accounts. Organization names are illustrative, not claims about actual alumni or partnerships.

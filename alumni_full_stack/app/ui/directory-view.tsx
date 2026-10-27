@@ -34,6 +34,7 @@ export default function DirectoryView({
   const [viewing, setViewing] = useState<Alumni | null>(null);
   const labels: Record<string, string> = {
     search: "Search",
+    opportunity_value: "Willing to provide",
     year_from: "Graduated from",
     year_to: "Graduated through",
     ...Object.assign({}, ...Object.values(profileGroups)),
@@ -49,7 +50,7 @@ export default function DirectoryView({
         <AlumniFilters
           admin={admin}
           query={query}
-          majors={directory?.majors ?? []}
+          filterOptions={directory?.filterOptions ?? {}}
           loading={loading}
           navigate={navigate}
           filter={filter}

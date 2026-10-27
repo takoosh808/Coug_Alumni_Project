@@ -135,6 +135,28 @@
   font-weight: 400;
   font-size: 12px;
 }
+.opportunity-filters .opportunity-search {
+  flex-direction: column;
+  align-items: stretch;
+}
+.opportunity-choices {
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.opportunity-choices label {
+  align-items: flex-start;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.opportunity-choices label:last-child { margin-bottom: 0; }
+.opportunity-choices label[hidden] { display: none; }
+.opportunity-choices input { flex-shrink: 0; }
+.opportunity-choices:focus-visible { outline: 3px solid var(--crimson); outline-offset: 2px; }
 .filter-panel .primary {
   font-size: 12px;
 }

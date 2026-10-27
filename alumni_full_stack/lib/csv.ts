@@ -12,7 +12,9 @@ export const columns = [
   "major",
   "linked_in",
   ...Object.keys(opportunities),
-  ...textFields.filter(field => !["current_company", "major"].includes(field)),
+  ...textFields.filter(
+    (field) => !["current_company", "major"].includes(field),
+  ),
   "education_history",
 ];
 function consent(value: string, row: number, column: string) {
@@ -99,13 +101,24 @@ export function parseAlumniCsv(source: string) {
         const history: unknown = JSON.parse(record.education_history);
         if (!Array.isArray(history) || history.length > 30) throw new Error();
         for (const entry of history) {
-          if (!entry || typeof entry !== "object" || Array.isArray(entry)) throw new Error();
+          if (!entry || typeof entry !== "object" || Array.isArray(entry))
+            throw new Error();
           const e = entry as Education;
-          if (typeof e.degree !== "string" || typeof e.major !== "string" ||
-            (e.graduation_year !== null && (!Number.isInteger(e.graduation_year) || e.graduation_year < 1900 || e.graduation_year > 2100))) throw new Error();
+          if (
+            typeof e.degree !== "string" ||
+            typeof e.major !== "string" ||
+            (e.graduation_year !== null &&
+              (!Number.isInteger(e.graduation_year) ||
+                e.graduation_year < 1900 ||
+                e.graduation_year > 2100))
+          )
+            throw new Error();
         }
       } catch {
-        throw new HttpError(400, `Row ${row}: education_history must be a JSON array of degree, major, and graduation_year (1900–2100 or null).`);
+        throw new HttpError(
+          400,
+          `Row ${row}: education_history must be a JSON array of degree, major, and graduation_year (1900–2100 or null).`,
+        );
       }
     }
     return columns.map((column) =>

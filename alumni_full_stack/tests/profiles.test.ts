@@ -5,6 +5,19 @@ import { profileFromRow } from "../lib/alumni-store";
 import { directoryFilters, directorySource } from "../lib/directory-query";
 
 const quote = (value: string) => `"${value.replace(/"/g,'""')}"`;
+test("custom opportunity filters are parameterized and support all/any with legacy links", () => {
+  const params = new URLSearchParams();
+  params.append("opportunity_value", "Robotics lab tours");
+  params.append("opportunity_value", "100%_' custom");
+  params.append("opportunity", "q_internship");
+  const all = directoryFilters(params);
+  assert.deepEqual(all.values, ["Robotics lab tours", "100%_' custom"]);
+  assert.match(all.where, /q_internship=TRUE AND EXISTS/);
+  assert.match(all.where, /LOWER\(BTRIM\(answer\)\) = LOWER\(\$1\)/);
+  assert.ok(!all.where.includes("Robotics"));
+  params.set("match", "any");
+  assert.match(directoryFilters(params).where, /q_internship=TRUE OR EXISTS/);
+});
 test("expanded CSV preserves custom answers and legacy opportunity compatibility", () => {
   const [row] = parseAlumniCsv('first_name,last_name,email,degree,industry,opportunities,support_interests,storage_consent\nA,B,A@EXAMPLE.COM,Custom qualification,Quantum sensors,Resume help; Lab tour,Donate equipment,Ask me first');
   const record = profileFromRow(row);

@@ -4,6 +4,7 @@ import { apiError, checkOrigin, HttpError, requireUser } from "@/lib/auth";
 import { directorySource, directoryFilters } from "@/lib/directory-query";
 import { columns, parseAlumniCsv } from "@/lib/csv";
 import { saveAlumni } from "@/lib/alumni-store";
+import { directoryFacets, facetOptions } from "@/lib/directory-facets";
 
 export async function GET(request: Request) {
   await connection();
@@ -32,14 +33,15 @@ export async function GET(request: Request) {
         `${source} SELECT COUNT(*)::int AS total,COUNT(DISTINCT NULLIF(current_company,''))::int AS companies,COUNT(*) FILTER(WHERE opportunities<>'' AND LOWER(TRIM(opportunities)) NOT IN ('none','no'))::int AS volunteers,COUNT(*) FILTER(WHERE q_internship)::int AS internships FROM directory`,
       ),
       db.query(
-        `${source} SELECT DISTINCT entry->>'major' AS major FROM directory CROSS JOIN LATERAL jsonb_array_elements(education_history) entry WHERE entry->>'major'<>'' ORDER BY major`,
+        `${source} ${directoryFacets}`,
       ),
     ]);
     return Response.json({
       alumni: rows.rows,
       total: count.rows[0].total,
       stats: stats.rows[0],
-      majors: facets.rows.map((row) => row.major),
+      filterOptions: facetOptions(facets.rows),
+      majors: facetOptions(facets.rows).major ?? [],
       page,
     });
   } catch (error) {
