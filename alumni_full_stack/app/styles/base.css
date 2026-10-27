@@ -191,16 +191,11 @@ legend {
 }
 .brand-mark,
 .mini-mark {
-  font-family: Georgia, serif;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  background: var(--crimson);
-  color: #fff;
-  font-size: 30px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
   width: 43px;
   height: 43px;
-  border-radius: 8px;
 }
 .wordmark {
   display: flex;

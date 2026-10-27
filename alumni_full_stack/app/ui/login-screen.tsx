@@ -1,5 +1,7 @@
 "use client";
 import Icon from "./ui-icon";
+import Image from "next/image";
+import loginLogo from "../../wsu_red_white_bckgrd.png";
 import type { FormEvent, RefObject } from "react";
 export default function LoginScreen({
   checking,
@@ -18,7 +20,8 @@ export default function LoginScreen({
     <div className="login-page">
       <section className="login-story">
         <div className="wordmark">
-          <span className="brand-mark">W</span>Coug Connect
+          <Image className="brand-mark" src={loginLogo} alt="Washington State University logo" sizes="43px" />
+          Coug Connect
         </div>
         <div>
           <p className="story-label">Washington State University</p>
@@ -38,7 +41,7 @@ export default function LoginScreen({
       </section>
       <main id="main" className="login-panel">
         <div className="login-form">
-          <span className="mini-mark">W</span>
+          <Image className="mini-mark" src={loginLogo} alt="Washington State University logo" sizes="38px" />
           <h2>Welcome back</h2>
           <p>Sign in to your alumni workspace.</p>
           {checking ? (

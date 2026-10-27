@@ -26,14 +26,30 @@ export default function AlumniFilters({
 }) {
   const params = new URLSearchParams(query);
   const field = (name: string, label: string) => {
-    const options = [...new Set([
-      ...(suggestions[name as ProfileField] ?? []),
-      ...(name === "major" ? majors : []),
-    ])];
+    const options = [
+      ...new Set([
+        ...(suggestions[name as ProfileField] ?? []),
+        ...(name === "major" ? majors : []),
+      ]),
+    ];
     return options.length ? (
-      <FilterCombobox key={name} name={name} label={label} defaultValue={params.get(name) ?? ""} options={options} />
+      <FilterCombobox
+        key={name}
+        name={name}
+        label={label}
+        defaultValue={params.get(name) ?? ""}
+        options={options}
+      />
     ) : (
-      <label key={name}>{label}<input name={name} defaultValue={params.get(name) ?? ""} placeholder="Any / type to search…" autoComplete="off" /></label>
+      <label key={name}>
+        {label}
+        <input
+          name={name}
+          defaultValue={params.get(name) ?? ""}
+          placeholder="Any / type to search…"
+          autoComplete="off"
+        />
+      </label>
     );
   };
   const group = (title: string, fields: Record<string, string>) => (

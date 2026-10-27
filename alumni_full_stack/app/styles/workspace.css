@@ -46,10 +46,10 @@
   padding: 30px 11px 38px;
 }
 .note-symbol {
-  font-family: Georgia, serif;
-  font-size: 45px;
-  font-weight: bold;
-  color: #b7b9be;
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 .sidebar-note p {
   font-family: Georgia, serif;

@@ -1,5 +1,6 @@
 "use client";
 import Icon from "./ui-icon";
+import WsuLogo from "./wsu-logo";
 import Link from "next/link";
 import { roleName, type Navigate, type User } from "@/lib/client-types";
 export default function Sidebar({
@@ -30,7 +31,7 @@ export default function Sidebar({
           }
         }}
       >
-        <span className="brand-mark">W</span>
+        <WsuLogo className="brand-mark" />
         <span>
           Coug<span className="brand-second">Connect</span>
         </span>
@@ -79,7 +80,7 @@ export default function Sidebar({
         ))}
       </nav>
       <div className="sidebar-note">
-        <span className="note-symbol">W</span>
+        <WsuLogo className="note-symbol" variant="white" />
         <p>
           Good things happen
           <br />
