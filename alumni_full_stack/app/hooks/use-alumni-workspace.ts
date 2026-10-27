@@ -134,6 +134,8 @@ export function useAlumniWorkspace() {
     e.preventDefault();
     const p = new URLSearchParams();
     new FormData(e.currentTarget).forEach((v, k) => {
+      if ((k === "match" && v === "all") || (k === "sort" && v === "name"))
+        return;
       if (String(v).trim()) p.append(k, String(v).trim());
     });
     navigate("directory", p.toString());

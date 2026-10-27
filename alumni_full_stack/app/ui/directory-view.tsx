@@ -6,6 +6,12 @@ import AlumniTable from "./alumni-table";
 import NetworkStats from "./network-stats";
 import QuickSearches from "./quick-searches";
 import type { FormEvent } from "react";
+import { useState } from "react";
+import type { Alumni } from "@/lib/types";
+import ProfileEditor from "./profile-editor";
+import AlumniProfile from "./alumni-profile";
+import { profileGroups } from "@/lib/profile-fields";
+import { opportunities } from "@/lib/types";
 export default function DirectoryView({
   directory,
   loading,
@@ -24,12 +30,24 @@ export default function DirectoryView({
   loadDirectory: () => void;
 }) {
   const params = new URLSearchParams(query);
+  const [editing, setEditing] = useState<Alumni | "new" | null>(null);
+  const [viewing, setViewing] = useState<Alumni | null>(null);
+  const labels: Record<string, string> = {
+    search: "Search",
+    year_from: "Graduated from",
+    year_to: "Graduated through",
+    ...Object.assign({}, ...Object.values(profileGroups)),
+  };
+  const active = [...params.entries()].filter(
+    ([key]) => !["page", "sort", "match"].includes(key),
+  );
   return (
     <>
       <NetworkStats stats={directory?.stats} />
       <QuickSearches navigate={navigate} />
       <div className="directory-layout">
         <AlumniFilters
+          admin={admin}
           query={query}
           majors={directory?.majors ?? []}
           loading={loading}
@@ -40,12 +58,22 @@ export default function DirectoryView({
           <div className="results-heading">
             <div>
               <h2>Alumni directory</h2>
+              <p>
+                {admin
+                  ? "Departmental access · Review preferences before contacting alumni."
+                  : "Profiles and contact links reflect alumni permissions."}
+              </p>
               <p role="status">
                 {loading
                   ? "Finding your connections…"
                   : `${number.format(directory?.total ?? 0)} alumni${params.size ? " match your search" : " in your network"}`}
               </p>
             </div>
+            {admin ? (
+              <button className="secondary" onClick={() => setEditing("new")}>
+                Add alumnus
+              </button>
+            ) : null}
             <label className="sort-label">
               Sort by
               <select
@@ -63,8 +91,35 @@ export default function DirectoryView({
               </select>
             </label>
           </div>
+          {active.length ? (
+            <div className="active-filters" aria-label="Applied filters">
+              {active.map(([key, value], index) => (
+                <button
+                  className="filter-chip"
+                  key={`${key}-${index}`}
+                  onClick={() => {
+                    const next = new URLSearchParams(query);
+                    next.delete(key, value);
+                    next.delete("page");
+                    navigate("directory", next.toString());
+                  }}
+                  aria-label={`Remove ${labels[key] ?? "opportunity"}: ${key === "opportunity" ? (opportunities[value as keyof typeof opportunities] ?? value) : value}`}
+                >
+                  {key === "opportunity"
+                    ? (opportunities[value as keyof typeof opportunities] ??
+                      value)
+                    : `${labels[key] ?? key}: ${value}`}{" "}
+                  <span aria-hidden="true">×</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
           {directory?.alumni.length ? (
-            <AlumniTable alumni={directory.alumni} />
+            <AlumniTable
+              alumni={directory.alumni}
+              onView={setViewing}
+              onEdit={admin ? setEditing : undefined}
+            />
           ) : (
             <div className="empty-state">
               <Icon name="people" />
@@ -139,6 +194,27 @@ export default function DirectoryView({
           </div>
         </section>
       </div>
+      {editing ? (
+        <ProfileEditor
+          alumni={editing === "new" ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            loadDirectory();
+          }}
+        />
+      ) : null}
+      {viewing ? (
+        <AlumniProfile
+          alumni={viewing}
+          admin={admin}
+          onClose={() => setViewing(null)}
+          onEdit={() => {
+            setViewing(null);
+            setEditing(viewing);
+          }}
+        />
+      ) : null}
     </>
   );
 }

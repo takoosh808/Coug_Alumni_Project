@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { db } from "@/lib/db";
 import { apiError, checkOrigin, HttpError, requireUser } from "@/lib/auth";
 import { columns, parseAlumniCsv } from "@/lib/csv";
+import { saveAlumni } from "@/lib/alumni-store";
 
 export async function GET() {
   await connection();
@@ -43,13 +44,7 @@ export async function POST(request: Request) {
     try {
       await client.query("BEGIN");
       for (const row of rows) {
-        await client.query(
-          `INSERT INTO alumni(${columns.join(",")}) VALUES(${columns.map((_, i) => `$${i + 1}`).join(",")}) ON CONFLICT(email) DO UPDATE SET ${columns
-            .filter((c) => c !== "email")
-            .map((c) => `${c}=EXCLUDED.${c}`)
-            .join(",")},updated_at=NOW()`,
-          row,
-        );
+        await saveAlumni(client, row);
       }
       await client.query(
         "INSERT INTO imports(filename,row_count,user_id) VALUES($1,$2,$3)",

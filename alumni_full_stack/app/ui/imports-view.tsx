@@ -53,10 +53,32 @@ export default function ImportsView({
           <strong>Existing emails update matching alumni.</strong>
           <p>
             Imported records replace matching alumni data. Missing optional
-            columns clear those fields. Blank opportunity responses stay
-            unknown. A validation error prevents the entire import.
+            columns clear those fields, including privacy permissions and
+            education history. Custom answers are welcome; separate multiple
+            opportunities with semicolons. A validation error prevents the
+            entire import.
           </p>
         </div>
+        <details className="import-note">
+          <summary>New form fields & education history</summary>
+          <p>
+            The template includes professional background, support interests,
+            and all privacy and communication preferences. Only first name, last
+            name, and email are required.
+          </p>
+          <p>
+            For one qualification, use degree, major, and graduation_year. For
+            multiple qualifications, use education_history as a JSON array of
+            objects containing degree, major, and graduation_year. This replaces
+            the single-qualification columns. You can also add education records
+            with the profile editor after importing.
+          </p>
+          <p>
+            Unknown privacy answers remain available to administrators for
+            review but do not authorize member visibility. Blank permissions
+            never grant access.
+          </p>
+        </details>
         <button
           className="primary"
           disabled={!file || busy}

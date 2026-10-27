@@ -3,6 +3,8 @@ export const opportunities = {
   q_guest_lecture: "Guest lectures",
   q_capstone_mentor: "Capstone mentoring",
   q_company_visits: "Company visits",
+  q_resume_help: "Resume help",
+  q_career_fair: "Career fair booth",
 } as const;
 export type Opportunity = keyof typeof opportunities;
 export type Role = "user" | "admin" | "super_admin";
@@ -16,4 +18,5 @@ export type Alumni = {
   graduation_year: number | null;
   major: string;
   linked_in: string;
-} & Record<Opportunity, boolean | null>;
+  education_history: import("./profile-fields").Education[];
+} & Record<import("./profile-fields").ProfileField, string> & Record<Opportunity, boolean | null>;

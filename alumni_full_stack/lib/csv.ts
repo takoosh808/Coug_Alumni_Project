@@ -1,6 +1,7 @@
 import { parse } from "csv-parse/sync";
 import { opportunities } from "./types";
 import { HttpError } from "./auth";
+import { textFields, type Education } from "./profile-fields";
 
 export const columns = [
   "first_name",
@@ -11,6 +12,8 @@ export const columns = [
   "major",
   "linked_in",
   ...Object.keys(opportunities),
+  ...textFields.filter(field => !["current_company", "major"].includes(field)),
+  "education_history",
 ];
 function consent(value: string, row: number, column: string) {
   if (!value || ["unknown", "n/a"].includes(value.toLowerCase())) return null;
@@ -42,7 +45,7 @@ export function parseAlumniCsv(source: string) {
       },
       skip_empty_lines: true,
       trim: true,
-      max_record_size: 10000,
+      max_record_size: 100000,
     });
   } catch (error) {
     throw new HttpError(400, `Invalid CSV: ${(error as Error).message}`);
@@ -69,10 +72,10 @@ export function parseAlumniCsv(source: string) {
       );
     seen.add(email);
     for (const value of Object.values(record))
-      if (value.length > 500)
+      if (value.length > 10000)
         throw new HttpError(
           400,
-          `Row ${row}: fields must be 500 characters or fewer.`,
+          `Row ${row}: fields must be 10,000 characters or fewer.`,
         );
     const year = record.graduation_year ? Number(record.graduation_year) : null;
     if (
@@ -91,6 +94,20 @@ export function parseAlumniCsv(source: string) {
         400,
         `Row ${row}: linked_in must be an https://linkedin.com/ URL.`,
       );
+    if (record.education_history) {
+      try {
+        const history: unknown = JSON.parse(record.education_history);
+        if (!Array.isArray(history) || history.length > 30) throw new Error();
+        for (const entry of history) {
+          if (!entry || typeof entry !== "object" || Array.isArray(entry)) throw new Error();
+          const e = entry as Education;
+          if (typeof e.degree !== "string" || typeof e.major !== "string" ||
+            (e.graduation_year !== null && (!Number.isInteger(e.graduation_year) || e.graduation_year < 1900 || e.graduation_year > 2100))) throw new Error();
+        }
+      } catch {
+        throw new HttpError(400, `Row ${row}: education_history must be a JSON array of degree, major, and graduation_year (1900–2100 or null).`);
+      }
+    }
     return columns.map((column) =>
       column in opportunities
         ? consent(record[column] ?? "", row, column)
