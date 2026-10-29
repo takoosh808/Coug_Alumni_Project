@@ -30,6 +30,8 @@ A private `.env` with a generated password may already exist if Codex initialize
 
 ## Docker
 
+For deployment on a Rocky Linux VM with the existing Let's Encrypt certificate, follow [DOCKER_NGINX_DEPLOYMENT.md](DOCKER_NGINX_DEPLOYMENT.md). It adds Nginx as a Docker Compose reverse proxy and leaves local development unchanged.
+
 After creating `.env` and choosing credentials:
 
 ```sh
