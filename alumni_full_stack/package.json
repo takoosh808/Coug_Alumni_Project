@@ -8,8 +8,14 @@
     "start": "next start --hostname 127.0.0.1",
     "lint": "eslint",
     "db:init": "tsx scripts/init-db.ts",
-    "test": "tsx --test tests/*.test.ts",
-    "test:integration": "tsx scripts/smoke-test.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:unit": "node --import tsx --test tests/*.test.ts",
+    "test:integration": "tsx scripts/run-tests.ts integration",
+    "test:functional": "tsx scripts/run-tests.ts functional",
+    "test:system": "tsx scripts/run-tests.ts system",
+    "test:performance": "tsx scripts/run-tests.ts performance",
+    "test:all": "npm run test:unit && tsx scripts/run-tests.ts all",
+    "test:smoke": "tsx scripts/smoke-test.ts",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -20,6 +26,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",

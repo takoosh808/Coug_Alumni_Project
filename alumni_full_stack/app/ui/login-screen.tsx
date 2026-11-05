@@ -2,7 +2,7 @@
 import Icon from "./ui-icon";
 import Image from "next/image";
 import loginLogo from "../../wsu_red_white_bckgrd.png";
-import type { FormEvent, RefObject } from "react";
+import { useEffect, type FormEvent, type RefObject } from "react";
 export default function LoginScreen({
   checking,
   busy,
@@ -16,6 +16,9 @@ export default function LoginScreen({
   login: (e: FormEvent<HTMLFormElement>) => void;
   loginError: RefObject<HTMLParagraphElement | null>;
 }) {
+  useEffect(() => {
+    if (!checking && error) loginError.current?.focus();
+  }, [checking, error, loginError]);
   return (
     <div className="login-page">
       <section className="login-story">

@@ -108,7 +108,6 @@ export function useAlumniWorkspace() {
       );
     } catch (e) {
       setError((e as Error).message);
-      requestAnimationFrame(() => loginError.current?.focus());
     } finally {
       setBusy(false);
     }

@@ -2,6 +2,8 @@
 
 A local WSU alumni directory using Next.js 16, React, TypeScript, and PostgreSQL.
 
+For a code-level explanation of the query flow, CSV import, profile editing, authentication, and file responsibilities, read [the architecture walkthrough](ARCHITECTURE_WALKTHROUGH.md).
+
 ## Features
 
 - Search permitted profile fields and filter by education, professional background, support, and privacy preferences.
@@ -74,6 +76,8 @@ compose.yaml   Database, initialization, and app services
 
 ## Checks
 
+See [TESTING.md](TESTING.md) for unit, integration, functional, browser system, and performance tests, including setup, isolation, reports, and performance budgets. Run all five categories with `npm run test:all`.
+
 ```sh
 npm run lint
 npm run typecheck
@@ -81,7 +85,7 @@ npm test
 npm run build
 ```
 
-With the app running, `npm run test:integration` verifies authentication, permissions, CSV imports, filters, pagination, profile editing, multiple qualifications, and privacy redaction using temporary records that it removes afterward. It also verifies legacy migration and repeatability in a temporary database schema (the database role needs permission to create schemas).
+`npm run test:integration` tests real PostgreSQL persistence and query behavior in a temporary schema. `npm run test:functional` starts an isolated app and tests API behavior; `npm run test:system` tests browser workflows; `npm run test:performance` measures parsing, import, and concurrent directory requests. These commands create and clean up their own test data and do not require an already-running app. The original externally targeted script remains available as `npm run test:smoke`.
 
 Production dependencies currently pass `npm audit --omit=dev`. The starter's ESLint development dependency chain has five high-severity audit findings rooted in `braces`; its latest published version has no patched release. Avoid the audit tool's suggested Next.js ESLint downgrade. Recheck when an upstream patch is available.
 
