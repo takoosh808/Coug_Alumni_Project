@@ -24,7 +24,10 @@ export default function ImportsView({
     <div className="admin-layout">
       <section className="admin-panel">
         <h2>Import alumni from CSV</h2>
-        <p>Upload up to 5,000 rows in a file under 2 MB.</p>
+        <p>
+          Upload a form-export CSV or the template below, up to 5,000 rows in a
+          file under 2 MB.
+        </p>
         <a href="/alumni-template.csv" download className="template-link">
           Download CSV template
         </a>
@@ -54,31 +57,25 @@ export default function ImportsView({
           <p>
             Imported records replace matching alumni data. Missing optional
             columns clear those fields, including privacy permissions and
-            education history. Custom answers are welcome; separate multiple
-            opportunities with semicolons. A validation error prevents the
-            entire import.
+            education history.
           </p>
         </div>
         <details className="import-note">
-          <summary>New form fields & education history</summary>
-          <p>
-            The template includes professional background, support interests,
-            and all privacy and communication preferences. Only first name, last
-            name, and email are required.
-          </p>
-          <p>
-            For one qualification, use degree, major, and graduation_year. For
-            multiple qualifications, use education_history as a JSON array of
-            objects containing degree, major, and graduation_year. This replaces
-            the single-qualification columns. You can also add education records
-            with the profile editor after importing.
-          </p>
-          <p>
-            Unknown privacy answers remain available to administrators for
-            review but do not authorize member visibility. Blank permissions
-            never grant access.
-          </p>
+          <summary>CSV columns and multiple answers</summary>
+          <p>Only these two columns accept semicolon-separated answers:</p>
+          <ul>
+            <li>
+              Areas of Professional Expertise or Interest (
+              <code>expertise</code>): Software Engineering; Cybersecurity; Web
+              development
+            </li>
+            <li>
+              Supporting WSU (<code>opportunities</code>): Sponsor a Senior
+              Design or Capstone project; Participate in a career fair
+            </li>
+          </ul>
         </details>
+
         <button
           className="primary"
           disabled={!file || busy}

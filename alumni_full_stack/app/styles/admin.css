@@ -7,6 +7,13 @@
 .admin-panel {
   padding: 28px;
 }
+.password-panel {
+  max-width: 560px;
+}
+.password-panel form {
+  display: grid;
+  gap: 20px;
+}
 .admin-panel > p {
   margin: 12px 0 20px;
   font-size: 13px;

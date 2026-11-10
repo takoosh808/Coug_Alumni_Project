@@ -46,6 +46,10 @@ For production outside Docker: `npm run build`, then `npm start`.
 
 ## CSV imports
 
+Admins and super admins can use **Export CSV** in the directory to download every matching alumni profile across all pages. Members cannot export, including through the API. Current filters and sorting apply. Education history is exported as JSON and expertise/support choices retain their semicolon separators. Formula-like text is prefixed with an apostrophe for spreadsheet safety.
+
+Every signed-in user can open **Change password** in the sidebar. Enter the current password and a different new password of 12–200 characters. Successful changes keep the current session active and sign out other sessions.
+
 Download the expanded blank template from the import screen. Required columns: `first_name`, `last_name`, `email`. Original optional columns remain supported (see **Expanded alumni form** below for all new fields):
 
 ```text
@@ -57,7 +61,7 @@ Legacy `q_*` opportunity columns accept yes/no, true/false, 1/0, or y/n, case-in
 
 An existing email **replaces the matching record's fields**. Missing optional columns clear those fields. Validate and preview before confirming. All rows and the import history entry are committed in a single transaction. Maximum: 2 MB and 5,000 records.
 
-`db/demo-alumni.csv` contains 10 fictional alumni with all 24 template columns populated, including every new form field and 14 education records. Import it through the admin screen. For pgAdmin, run `db/schema.sql` first, then execute the entire `db/demo-alumni.sql` file in Query Tool. Both sample files contain the same profiles and update matching example.com emails when loaded again; neither runs automatically. See `db/README.md` for sample coverage and expected visibility. Legacy yes/no opportunity answers remain supported by imports.
+`db/demo-alumni.csv` contains 10 fictional alumni with the revised supporting WSU answers and 14 education records. The removed duplicate support question is omitted. Import it through the admin screen. For pgAdmin, run `db/schema.sql` first, then execute the entire `db/demo-alumni.sql` file in Query Tool. Both sample files contain the same profiles and update matching example.com emails when loaded again; neither runs automatically. See `db/README.md` for sample coverage and expected visibility. Legacy yes/no opportunity answers remain supported by imports.
 
 ## Organization
 
@@ -113,12 +117,12 @@ In addition to the original columns, imports accept:
 
 ```text
 degree,employment_status,job_title,industry,professional_location,expertise,
-opportunities,support_interests,participation_format,contact_frequency,
+opportunities,participation_format,contact_frequency,
 additional_comments,storage_consent,profile_visibility,contact_visibility,
 student_contact,alumni_updates,education_history,q_resume_help,q_career_fair
 ```
 
-All new response fields are free text, including privacy preferences. No fixed industry, degree, job, or support category is required. Separate multiple opportunity answers with semicolons (for example `Internship opportunities; Resume help; Robotics lab tour`). Dedicated opportunity checkboxes find common phrases; use the free-text opportunity filter for custom answers. `support_interests` is separate from willingness to provide opportunities. Blank responses remain unanswered. The legacy `q_*` columns still accept nullable yes/no values; when `opportunities` is blank, positive legacy answers are converted to opportunity text. An explicit nonblank `opportunities` answer takes precedence.
+All new response fields are free text, including privacy preferences. No fixed industry, degree, job, or support category is required. Only `expertise` (Areas of Professional Expertise or Interest) and `opportunities` (Supporting WSU) accept multiple answers separated by semicolons. Examples: `Software Engineering; Cybersecurity; Web development` and `Sponsor a Senior Design or Capstone project; Participate in a career fair`. Semicolons in other columns remain punctuation within one answer. Dedicated opportunity checkboxes find common phrases; use the free-text opportunity filter for custom answers. The removed duplicate `support_interests` question is omitted from the template; legacy imports still accept it as a single text answer. Blank responses remain unanswered. The legacy `q_*` columns still accept nullable yes/no values; when `opportunities` is blank, positive legacy answers are converted to opportunity text. An explicit nonblank `opportunities` answer takes precedence.
 
 For a single qualification use `degree`, `major`, and `graduation_year`. For multiple qualifications, `education_history` accepts a JSON array, up to 30 records, and takes precedence over those three columns. Each object requires string `degree`, string `major`, and integer `graduation_year` (1900–2100) or null. Example before CSV quoting:
 

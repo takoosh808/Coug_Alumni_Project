@@ -44,6 +44,7 @@ export default function Sidebar({
             title: "Alumni directory",
             icon: "people" as const,
           },
+          { key: "password", title: "Change password", icon: "shield" as const },
           ...(admin
             ? [
                 {

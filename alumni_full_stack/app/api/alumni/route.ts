@@ -30,11 +30,18 @@ export async function GET(request: Request) {
         values,
       ),
       db.query(
-        `${source} SELECT COUNT(*)::int AS total,COUNT(DISTINCT NULLIF(current_company,''))::int AS companies,COUNT(*) FILTER(WHERE opportunities<>'' AND LOWER(TRIM(opportunities)) NOT IN ('none','no'))::int AS volunteers,COUNT(*) FILTER(WHERE q_internship)::int AS internships FROM directory`,
+        `${source} SELECT COUNT(*)::int AS total,
+          COUNT(DISTINCT NULLIF(LOWER(BTRIM(REGEXP_REPLACE(current_company, '[[:space:]]+', ' ', 'g'))),''))::int AS companies,
+          COUNT(*) FILTER(WHERE EXISTS (
+            SELECT 1 FROM unnest(string_to_array(opportunities, ';')) AS offered(answer)
+            WHERE LOWER(BTRIM(REGEXP_REPLACE(answer, '[[:space:]]+', ' ', 'g'))) NOT IN ('', 'none', 'no', 'n/a', 'not applicable', 'not applicable at this time', 'not at this time', 'please do not contact me about engagement opportunities at this time')
+          ))::int AS volunteers,
+          COUNT(*) FILTER(WHERE q_internship)::int AS internships,
+          (SELECT MIN((entry->>'graduation_year')::int) FROM directory d CROSS JOIN LATERAL jsonb_array_elements(d.education_history) AS entry) AS graduation_year_min,
+          (SELECT MAX((entry->>'graduation_year')::int) FROM directory d CROSS JOIN LATERAL jsonb_array_elements(d.education_history) AS entry) AS graduation_year_max
+          FROM directory`,
       ),
-      db.query(
-        `${source} ${directoryFacets}`,
-      ),
+      db.query(`${source} ${directoryFacets}`),
     ]);
     return Response.json({
       alumni: rows.rows,

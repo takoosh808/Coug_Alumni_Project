@@ -1,4 +1,6 @@
 /** Text fields intentionally accept custom answers; suggestions are never enums. */
+export const multiValueFields: readonly string[] = ["expertise", "opportunities"];
+
 export const profileGroups = {
   education: { degree: "Degree earned", major: "Major / academic program" },
   professional: {

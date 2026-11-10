@@ -6,7 +6,7 @@ import AlumniTable from "./alumni-table";
 import NetworkStats from "./network-stats";
 import QuickSearches from "./quick-searches";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Alumni } from "@/lib/types";
 import ProfileEditor from "./profile-editor";
 import AlumniProfile from "./alumni-profile";
@@ -32,6 +32,39 @@ export default function DirectoryView({
   const params = new URLSearchParams(query);
   const [editing, setEditing] = useState<Alumni | "new" | null>(null);
   const [viewing, setViewing] = useState<Alumni | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
+  async function exportCsv() {
+    setExporting(true);
+    setExportError("");
+    try {
+      const response = await fetch(`/api/alumni/export?${query}`);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? "CSV export failed. Try again.");
+      }
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "alumni-export.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) { setExportError((error as Error).message); }
+    finally { setExporting(false); }
+  }
+  const resultsHeading = useRef<HTMLHeadingElement>(null);
+  function search(e: FormEvent<HTMLFormElement>) {
+    filter(e);
+    resultsHeading.current?.focus({ preventScroll: true });
+    resultsHeading.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+      block: "start",
+    });
+  }
   const labels: Record<string, string> = {
     search: "Search",
     opportunity_value: "Willing to provide",
@@ -53,12 +86,18 @@ export default function DirectoryView({
           filterOptions={directory?.filterOptions ?? {}}
           loading={loading}
           navigate={navigate}
-          filter={filter}
+          filter={search}
         />
         <section className="results-panel" aria-busy={loading}>
           <div className="results-heading">
             <div>
-              <h2>Alumni directory</h2>
+              <h2
+                ref={resultsHeading}
+                tabIndex={-1}
+                className="directory-results-title"
+              >
+                Alumni directory
+              </h2>
               <p>
                 {admin
                   ? "Departmental access · Review preferences before contacting alumni."
@@ -70,6 +109,10 @@ export default function DirectoryView({
                   : `${number.format(directory?.total ?? 0)} alumni${params.size ? " match your search" : " in your network"}`}
               </p>
             </div>
+            {admin ? <button className="secondary" disabled={loading || exporting} onClick={exportCsv}
+              title="Export all matching alumni across all pages">
+              {exporting ? "Exporting…" : "Export CSV"}
+            </button> : null}
             {admin ? (
               <button className="secondary" onClick={() => setEditing("new")}>
                 Add alumnus
@@ -92,6 +135,7 @@ export default function DirectoryView({
               </select>
             </label>
           </div>
+          {exportError ? <p className="error" role="alert">{exportError}</p> : null}
           {active.length ? (
             <div className="active-filters" aria-label="Applied filters">
               {active.map(([key, value], index) => (

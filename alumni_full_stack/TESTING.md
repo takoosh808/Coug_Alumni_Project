@@ -40,24 +40,26 @@ Test accounts/passwords in `tests/support/fixtures.ts` are fictional and inserte
 - `tests/integration/database.test.ts`: real schema/view behavior and transactions. The rollback case induces a database check-constraint failure after a profile and import-log write, then checks that both disappear after rollback.
 - `tests/functional/api.test.ts`: API status codes and persisted outcomes. Preview cannot write data/history; one invalid row cannot partly import a file; replacement clears omitted fields; hidden contacts cannot be searched; unauthorized writes cannot succeed. One test installs a temporary database trigger that fails a later import row, then checks through the API that earlier profile writes and history were rolled back. The trigger exists only in the disposable schema and is removed afterward.
 - `tests/system/workflows.spec.ts`: user journeys through visible controls. Editing adds a qualification and checks persistence after refresh. Login failure checks focus on the error for keyboard/screen-reader users.
-- `tests/performance/benchmark.ts`: parses 5,000 CSV rows, imports a configurable dataset, warms four directory query shapes, then runs bounded concurrent member requests and checks the responses as well as their duration.
+- `tests/performance/benchmark.ts`: parses 5,000 CSV rows, imports 100,000 alumni by default in batches of up to 5,000, warms four directory query shapes, then runs bounded concurrent member requests and checks the responses as well as their duration.
 
 This suite does not claim exhaustive coverage: it does not test every CSS breakpoint, all browser engines, Docker/Nginx/TLS deployment, internet-scale traffic, or every possible privacy-answer combination. The system suite currently targets desktop Chromium. The original smoke script also contains a populated legacy-upgrade scenario.
 
 ## Performance settings and interpretation
 
-Defaults are practical local regression budgets, not production service-level guarantees. Parsing uses the maximum supported 5,000-row count; API load uses 500 imported profiles, 50 measured requests, and concurrency 5. Authentication, data setup, initial build, and warm-up requests are excluded from the measured directory load.
+Defaults are practical local regression budgets, not production service-level guarantees. Parsing uses the maximum supported 5,000-row count; API load uses 100,000 imported profiles (20 sequential CSV uploads of 5,000 records each), 50 measured requests, and concurrency 5. Authentication, data setup, initial build, and warm-up requests are excluded from the measured directory load.
 
-| Variable           | Default | Purpose                                           |
-| ------------------ | ------- | ------------------------------------------------- |
-| `PERF_ROWS`        | `500`   | Imported benchmark profiles, up to 5,000          |
-| `PERF_REQUESTS`    | `50`    | Measured reads, up to 5,000                       |
-| `PERF_CONCURRENCY` | `5`     | Concurrent request workers, up to 50              |
-| `PERF_P95_MS`      | `2000`  | Maximum permitted directory p95 response duration |
-| `PERF_PARSE_MS`    | `2000`  | Maximum duration to parse 5,000 basic CSV records |
-| `PERF_IMPORT_MS`   | `30000` | Maximum duration for benchmark file import        |
+| Variable           | Default  | Purpose                                           |
+| ------------------ | -------- | ------------------------------------------------- |
+| `PERF_ROWS`        | `100000` | Total imported benchmark profiles, up to 100,000  |
+| `PERF_REQUESTS`    | `50`     | Measured reads, up to 5,000                       |
+| `PERF_CONCURRENCY` | `5`      | Concurrent request workers, up to 50              |
+| `PERF_P95_MS`      | `2000`   | Maximum permitted directory p95 response duration |
+| `PERF_PARSE_MS`    | `2000`   | Maximum duration to parse 5,000 basic CSV records |
+| `PERF_IMPORT_MS`   | `30000`  | Maximum duration per CSV import batch             |
 
-Example in macOS/Linux shells:
+Each upload remains limited to 5,000 records and 2 MB. Distinct emails across batches accumulate the full dataset; CSV headers and the runner's 23 seed profiles are excluded from the 100,000-record workload. Parsing measures one maximum-size upload. The report includes individual batch durations, total import time, and the slowest batch; `PERF_IMPORT_MS` applies to the slowest batch.
+
+For a quicker run with a smaller dataset, in macOS/Linux shells:
 
 ```sh
 PERF_ROWS=1000 PERF_REQUESTS=200 PERF_CONCURRENCY=10 PERF_P95_MS=1500 npm run test:performance
@@ -65,7 +67,9 @@ PERF_ROWS=1000 PERF_REQUESTS=200 PERF_CONCURRENCY=10 PERF_P95_MS=1500 npm run te
 
 The runner prints p50/p95 latency, requests per second, parser/import duration, and error count. It writes `test-results/performance.json` with the workload, budgets, metrics, and failures. Any request error or exceeded budget fails the command. Compare results on the same machine, dataset size, runtime, and concurrency; increase sample size for more stable percentile estimates. Each API directory request also computes network stats and facets, so it exercises more than a simple indexed row lookup.
 
-Initial local verification on November 5, 2026: all 19 unit, 4 integration, 7 functional, and 5 Chromium system tests passed. The default performance workload passed with zero errors: approximately 21 ms to parse 5,000 rows, 315 ms to import 500 profiles, directory p95 of 45 ms, and 143 requests/second. These are observations from this machine, not portable guarantees. The browser regression test also exposed and verified a fix for login-error focus: focus now runs in an effect after React renders the message.
+Initial local verification on November 5, 2026: all 19 unit, 4 integration, 7 functional, and 5 Chromium system tests passed. The previous 500-profile performance workload passed with zero errors: approximately 21 ms to parse 5,000 rows, 315 ms to import 500 profiles, directory p95 of 45 ms, and 143 requests/second. These are observations from this machine, not portable guarantees. The browser regression test also exposed and verified a fix for login-error focus: focus now runs in an effect after React renders the message.
+
+Updated 100,000-profile verification on November 5, 2026: all 20 CSV batches imported successfully, with approximately 123.3 seconds total import time and 6.5 seconds for the slowest batch. Parsing 5,000 records took 25.9 ms. All 50 measured directory requests returned correct counts and page sizes with zero request errors, but p95 was 10,285 ms (p50 9,406 ms; approximately 0.5 requests/second). The suite therefore **fails the existing 2,000 ms directory p95 budget** at this scale. Import and parser budgets pass. These local observations identify a directory-query performance gap; they do not establish production capacity. The temporary schema was removed after the run.
 
 ## Reports and troubleshooting
 

@@ -6,6 +6,7 @@ import Sidebar from "./sidebar";
 import DirectoryView from "./directory-view";
 import ImportsView from "./imports-view";
 import AccountsView from "./accounts-view";
+import PasswordView from "./password-view";
 export default function AlumniApp() {
   const {
     user,
@@ -59,7 +60,7 @@ export default function AlumniApp() {
           <span>
             Alumni relations <span className="crumb">/</span>
             <strong>
-              {tab === "imports"
+              {tab === "password" ? "Change password" : tab === "imports"
                 ? "CSV imports"
                 : tab === "users"
                   ? "Manage accounts"
@@ -74,14 +75,14 @@ export default function AlumniApp() {
           <div className="page-heading">
             <div>
               <h1>
-                {tab === "imports"
+                {tab === "password" ? "Your account." : tab === "imports"
                   ? "Grow your network."
                   : tab === "users"
                     ? "Your workspace team."
                     : "Find your next connection."}
               </h1>
               <p>
-                {tab === "imports"
+                {tab === "password" ? "Update your sign-in password." : tab === "imports"
                   ? "Bring alumni records together with a simple CSV import."
                   : tab === "users"
                     ? "Give your team the right access to the alumni network."
@@ -115,6 +116,8 @@ export default function AlumniApp() {
               filter={filter}
               loadDirectory={loadDirectory}
             />
+          ) : tab === "password" ? (
+            <PasswordView />
           ) : tab === "imports" && admin ? (
             <ImportsView
               file={file}

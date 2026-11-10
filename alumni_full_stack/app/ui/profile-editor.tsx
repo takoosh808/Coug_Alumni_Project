@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Alumni } from "@/lib/types";
 import {
+  multiValueFields,
   profileGroups,
   suggestions,
   type Education,
@@ -64,6 +65,9 @@ export default function ProfileEditor({
             <option key={value} value={value} />
           ))}
         </datalist>
+        {multiValueFields.includes(key) ? (
+          <small>Separate multiple answers with semicolons.</small>
+        ) : null}
       </label>
     );
   }
@@ -192,11 +196,6 @@ export default function ProfileEditor({
                     ? "Supporting WSU"
                     : "Privacy & communication"}
               </legend>
-              {group === "support" ? (
-                <p>
-                  Separate multiple opportunities or interests with semicolons.
-                </p>
-              ) : null}
               <div className="editor-grid">
                 {Object.entries(fields).map(([key, label]) =>
                   key === "additional_comments" ? (

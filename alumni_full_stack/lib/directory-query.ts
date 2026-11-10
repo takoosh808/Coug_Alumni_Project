@@ -1,6 +1,7 @@
 import { opportunities } from "./types";
 import { textFields } from "./profile-fields";
 import { HttpError } from "./auth";
+import { normalizeText } from "./normalize";
 
 // Members can include students. Custom or missing permissions require staff review.
 export const memberVisibility = `LOWER(TRIM(storage_consent)) IN ('yes','true','1','y','i agree')
@@ -50,14 +51,14 @@ export function directoryFilters(params: URLSearchParams) {
   for (const field of textFields.filter(
     (f) => !["degree", "major"].includes(f),
   )) {
-    const value = params.get(field)?.trim();
-    if (value) conditions.push(`${field} ILIKE ${add(literal(value))}`);
+    const value = normalizeText(params.get(field) ?? "");
+    if (value) conditions.push(`REGEXP_REPLACE(${field}, '[[:space:]]+', ' ', 'g') ILIKE ${add(literal(value))}`);
   }
   const education: string[] = [];
   for (const field of ["degree", "major"]) {
-    const value = params.get(field)?.trim();
+    const value = normalizeText(params.get(field) ?? "");
     if (value)
-      education.push(`entry->>'${field}' ILIKE ${add(literal(value))}`);
+      education.push(`REGEXP_REPLACE(entry->>'${field}', '[[:space:]]+', ' ', 'g') ILIKE ${add(literal(value))}`);
   }
   for (const [key, op] of [
     ["year_from", ">="],
@@ -93,7 +94,7 @@ export function directoryFilters(params: URLSearchParams) {
   for (const value of params.getAll("opportunity_value")) {
     if (value.trim())
       opportunityConditions.push(
-        `EXISTS (SELECT 1 FROM unnest(string_to_array(opportunities, ';')) AS offered(answer) WHERE LOWER(BTRIM(answer)) = LOWER(${add(value.trim())}))`,
+        `EXISTS (SELECT 1 FROM unnest(string_to_array(opportunities, ';')) AS offered(answer) WHERE LOWER(BTRIM(REGEXP_REPLACE(answer, '[[:space:]]+', ' ', 'g'))) = LOWER(${add(normalizeText(value))}))`,
       );
   }
   if (opportunityConditions.length)

@@ -93,6 +93,13 @@
 .filter-panel {
   padding: 20px;
 }
+.directory-results-title {
+  scroll-margin-top: 24px;
+}
+.directory-results-title:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 4px;
+}
 .filter-heading {
   display: flex;
   justify-content: space-between;
@@ -161,6 +168,7 @@
   font-size: 12px;
 }
 .results-heading {
+  flex-wrap: wrap;
   padding: 23px;
   display: flex;
   justify-content: space-between;

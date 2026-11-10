@@ -13,7 +13,8 @@ test("custom opportunity filters are parameterized and support all/any with lega
   const all = directoryFilters(params);
   assert.deepEqual(all.values, ["Robotics lab tours", "100%_' custom"]);
   assert.match(all.where, /q_internship=TRUE AND EXISTS/);
-  assert.match(all.where, /LOWER\(BTRIM\(answer\)\) = LOWER\(\$1\)/);
+  assert.match(all.where, /LOWER\(BTRIM\(REGEXP_REPLACE\(answer/);
+  assert.match(all.where, /= LOWER\(\$1\)/);
   assert.ok(!all.where.includes("Robotics"));
   params.set("match", "any");
   assert.match(directoryFilters(params).where, /q_internship=TRUE OR EXISTS/);
@@ -39,7 +40,7 @@ test("multiple education records survive CSV quoting; invalid history rejects im
 test("education filters constrain the same qualification and escape literal wildcards", () => {
   const result = directoryFilters(new URLSearchParams("degree=BS&major=CS&year_from=2010&year_to=2020&expertise=100%25"));
   assert.match(result.where,/EXISTS.*jsonb_array_elements/);
-  assert.match(result.where,/entry->>'degree'.*AND entry->>'major'/);
+  assert.match(result.where,/entry->>'degree'.*AND REGEXP_REPLACE\(entry->>'major'/);
   assert.equal(result.values[0],"%100\\%%");
   assert.throws(() => directoryFilters(new URLSearchParams("year_from=2025&year_to=2010")),/starting/);
   assert.throws(() => directoryFilters(new URLSearchParams("opportunity=constructor")),/Unknown/);

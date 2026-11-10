@@ -1,4 +1,5 @@
-import { textFields, type ProfileField } from "./profile-fields";
+import { multiValueFields, textFields, type ProfileField } from "./profile-fields";
+import { uniqueAnswers } from "./normalize";
 
 export type FilterOptions = Partial<Record<ProfileField, string[]>>;
 
@@ -11,7 +12,7 @@ export const directoryFacets = `
     FROM directory d
     CROSS JOIN LATERAL jsonb_each_text(to_jsonb(d)) AS fields(field, value)
     CROSS JOIN LATERAL unnest(
-      CASE WHEN field IN ('opportunities','expertise','support_interests')
+      CASE WHEN field IN (${multiValueFields.map((field) => `'${field}'`).join(",")})
         THEN string_to_array(value, ';') ELSE ARRAY[value] END
     ) AS parts(part)
     WHERE field IN (${textFields
@@ -31,5 +32,8 @@ export const directoryFacets = `
 export function facetOptions(
   rows: { field: ProfileField; options: string[] }[],
 ): FilterOptions {
-  return Object.fromEntries(rows.map((row) => [row.field, row.options]));
+  return Object.fromEntries(rows.map((row) => [
+    row.field,
+    uniqueAnswers(row.field, row.options).sort((a, b) => a.localeCompare(b)),
+  ]));
 }

@@ -118,7 +118,7 @@ async function main() {
     }
     if (suite !== "integration") await startApp();
     if (suite === "functional" || suite === "all") {
-      await run(["--import", "tsx", "--test", "tests/functional/api.test.ts"]);
+      await run(["--import", "tsx", "--test", "tests/functional/api.test.ts", "tests/functional/account-export.test.ts"]);
     }
     if (suite === "system" || suite === "all") {
       await run(["node_modules/@playwright/test/cli.js", "test"]);

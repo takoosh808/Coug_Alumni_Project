@@ -5,18 +5,21 @@ export default function NetworkStats({
 }: {
   stats: Directory["stats"] | undefined;
 }) {
+  const graduationYears = stats?.graduation_year_min != null && stats?.graduation_year_max != null
+    ? `${stats.graduation_year_min}–${stats.graduation_year_max}`
+    : "—";
   return (
     <section className="stats" aria-label="Network overview">
       {[
         ["Alumni in your network", stats?.total],
         ["Companies represented", stats?.companies],
-        ["Ready to give back", stats?.volunteers],
-        ["Offering internships", stats?.internships],
+        ["Willing to Support WSU", stats?.volunteers],
+        ["Graduation Years", graduationYears],
       ].map(([label, value]) => (
         <div key={String(label)}>
           <span>{label}</span>
           <strong>
-            {value === undefined ? "—" : number.format(value as number)}
+            {value === undefined ? "—" : typeof value === "number" ? number.format(value) : value}
           </strong>
         </div>
       ))}

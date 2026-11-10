@@ -4,11 +4,11 @@
 
 Directory choices are queried from current database answers on every directory request, independently of search filters and pagination. New imported, edited, or directly updated values appear on the next directory load; refresh an already open directory after an external database update. No lookup tables or migration are needed: the existing profile tables remain the source of truth.
 
-Degree and major choices include every education record. Opportunities, expertise, and support interests split semicolon-separated answers into individual choices; commas remain part of answers. Blank choices are excluded, and choices are deduplicated and sorted. Member choices use only profiles visible to that member and exclude staff-only comments.
+Degree and major choices include every education record. Only opportunities (supporting WSU) and expertise/interests split semicolon-separated answers into individual choices; commas remain part of answers. Other text fields, including legacy support interests, retain semicolons as punctuation in a single answer. Blank choices are excluded, and choices are deduplicated and sorted. Member choices use only profiles visible to that member and exclude staff-only comments.
 
 Opportunity checkboxes use repeated `opportunity_value` query parameters for exact, case-insensitive answers and support all/any matching. Existing `opportunity=q_internship` and other legacy category links remain supported. Other text filters retain partial-text matching. Fixed suggestions in the profile editor remain optional data-entry hints and do not control directory filter options.
 
-The old 10-person list has been updated for the expanded schema. Every one of the 24 CSV template columns has a value, including all education, professional, support, and privacy responses. The examples do not establish which real form fields must be required. No validation rules or schema constraints were changed.
+The 10-person list uses the revised supporting WSU question wording in `opportunities`. The removed duplicate `support_interests` question is omitted from the CSV and blank in the SQL demo. The 23 CSV columns include education, professional, support, and privacy responses. Values use consistent spacing and semicolon separators, with no repeated choices or test markers. The examples do not establish which real form fields must be required.
 
 Names, employment details, comments, and permissions are fictional. Emails use the reserved `example.com` domain. LinkedIn URLs are clearly marked fictional placeholders and are not verified accounts. Organization names are illustrative, not claims about actual alumni or partnerships.
 
@@ -42,7 +42,7 @@ The scalar degree, major, and graduation year match each person's latest qualifi
 | Quinn Anderson | Computer science teacher | Hidden; departmental use only |
 | Avery Kim | Seeking robotics engineering work | Hidden; storage consent is No |
 
-Administrators can inspect all 10 examples; members see six. Avery's deliberately negative consent is a privacy test case, not authorization to retain real information without consent. Other scenarios include no offered opportunities, custom support answers, varied contact frequencies, news opt-outs, custom degree/major/industry values, and multiple education records.
+Administrators can inspect all 10 examples; members see six. Avery's deliberately negative consent is a privacy test case, not authorization to retain real information without consent. Other scenarios include no offered opportunities, varied contact frequencies, news opt-outs, custom degree/major/industry values, and multiple education records.
 
 ## Application sign-in accounts
 

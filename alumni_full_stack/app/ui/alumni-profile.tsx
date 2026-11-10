@@ -199,10 +199,7 @@ export default function AlumniProfile({
             {alumni.support_interests ? (
               <section aria-labelledby="support-heading">
                 <h3 id="support-heading">Other ways to support WSU</h3>
-                <Answers
-                  value={alumni.support_interests}
-                  empty="No support interests listed."
-                />
+                <p>{alumni.support_interests}</p>
               </section>
             ) : null}
             <section aria-labelledby="participation-heading">

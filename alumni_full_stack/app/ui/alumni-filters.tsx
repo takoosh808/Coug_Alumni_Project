@@ -1,10 +1,7 @@
 "use client";
 import Icon from "./ui-icon";
 import { opportunities } from "@/lib/types";
-import {
-  profileGroups,
-  type ProfileField,
-} from "@/lib/profile-fields";
+import { profileGroups, type ProfileField } from "@/lib/profile-fields";
 import type { Navigate } from "@/lib/client-types";
 import { useState, type FormEvent } from "react";
 import FilterCombobox from "./filter-combobox";
@@ -26,11 +23,14 @@ export default function AlumniFilters({
 }) {
   const params = new URLSearchParams(query);
   const [opportunitySearch, setOpportunitySearch] = useState("");
-  const opportunityChoices = [...new Set([
-    ...(filterOptions.opportunities ?? []),
-    ...params.getAll("opportunity_value"),
-  ])].sort((a, b) => {
-    const noneFirst = Number(b.toLowerCase() === "none") - Number(a.toLowerCase() === "none");
+  const opportunityChoices = [
+    ...new Set([
+      ...(filterOptions.opportunities ?? []),
+      ...params.getAll("opportunity_value"),
+    ]),
+  ].sort((a, b) => {
+    const noneFirst =
+      Number(b.toLowerCase() === "none") - Number(a.toLowerCase() === "none");
     return noneFirst || a.localeCompare(b);
   });
   const matchesOpportunity = (value: string) =>
@@ -166,35 +166,55 @@ export default function AlumniFilters({
                 placeholder="Find an opportunity…"
               />
             </label>
-            <div className="opportunity-choices" role="group" aria-label="Willing to provide choices" tabIndex={0}>
-            {opportunityChoices.map((value) => (
-              <label key={value} hidden={!matchesOpportunity(value)}>
-                <input
-                  name="opportunity_value"
-                  type="checkbox"
-                  value={value}
-                  defaultChecked={params.getAll("opportunity_value").includes(value)}
-                />
-                {value}
-              </label>
-            ))}
-            {Object.entries(opportunities).filter(([key]) => params.getAll("opportunity").includes(key)).map(([key, label]) => (
-              <label key={key} hidden={!matchesOpportunity(label)}>
-                <input
-                  name="opportunity"
-                  type="checkbox"
-                  value={key}
-                  defaultChecked={params.getAll("opportunity").includes(key)}
-                />
-                {label}
-              </label>
-            ))}
-            {!opportunityChoices.some(matchesOpportunity) &&
-              !Object.entries(opportunities).some(([key, label]) => params.getAll("opportunity").includes(key) && matchesOpportunity(label)) ? (
-                <p className="filter-help" role="status">No opportunities match your search.</p>
+            <div
+              className="opportunity-choices"
+              role="group"
+              aria-label="Willing to provide choices"
+              tabIndex={0}
+            >
+              {opportunityChoices.map((value) => (
+                <label key={value} hidden={!matchesOpportunity(value)}>
+                  <input
+                    name="opportunity_value"
+                    type="checkbox"
+                    value={value}
+                    defaultChecked={params
+                      .getAll("opportunity_value")
+                      .includes(value)}
+                  />
+                  {value}
+                </label>
+              ))}
+              {Object.entries(opportunities)
+                .filter(([key]) => params.getAll("opportunity").includes(key))
+                .map(([key, label]) => (
+                  <label key={key} hidden={!matchesOpportunity(label)}>
+                    <input
+                      name="opportunity"
+                      type="checkbox"
+                      value={key}
+                      defaultChecked={params
+                        .getAll("opportunity")
+                        .includes(key)}
+                    />
+                    {label}
+                  </label>
+                ))}
+              {!opportunityChoices.some(matchesOpportunity) &&
+              !Object.entries(opportunities).some(
+                ([key, label]) =>
+                  params.getAll("opportunity").includes(key) &&
+                  matchesOpportunity(label),
+              ) ? (
+                <p className="filter-help" role="status">
+                  No opportunities match your search.
+                </p>
               ) : null}
             </div>
-            <p className="filter-help">Search or scroll for more choices. Selected choices stay selected while searching.</p>
+            <p className="filter-help">
+              Search or scroll for more choices. Selected choices stay selected
+              while searching.
+            </p>
           </fieldset>
           <label>
             Match opportunities
@@ -204,7 +224,12 @@ export default function AlumniFilters({
             </select>
           </label>
           {Object.entries(profileGroups.support)
-            .filter(([key]) => key !== "additional_comments" && key !== "opportunities")
+            .filter(
+              ([key]) =>
+                key !== "additional_comments" &&
+                key !== "opportunities" &&
+                key !== "support_interests",
+            )
             .map(([key, label]) => field(key, label))}
         </details>
         {/* Temporarily hidden. Restore `admin` in the props above to re-enable.

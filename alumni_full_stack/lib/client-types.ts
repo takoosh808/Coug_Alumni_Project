@@ -8,6 +8,8 @@ export type Directory = {
     companies: number;
     volunteers: number;
     internships: number;
+    graduation_year_min: number | null;
+    graduation_year_max: number | null;
   };
   majors: string[];
   filterOptions: import("./directory-facets").FilterOptions;
